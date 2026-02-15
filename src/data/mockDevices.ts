@@ -19,58 +19,6 @@ export const mockDevices: Device[] = [
     firmwareVersion: '6.0.1',
   },
   {
-    id: 'dev-002',
-    name: 'Smart Thermostat',
-    category: 'iot',
-    status: 'connected',
-    signalStrength: 88,
-    sensorAccuracy: 95,
-    bandwidth: { upload: 0.1, download: 0.2, used: 12, limit: 100 },
-    lastConnected: new Date(),
-    healthStatus: 'good',
-    capabilities: ['Temperature Control', 'Scheduling', 'Energy Reports', 'Voice Control'],
-    macAddress: 'AA:BB:CC:DD:EE:02',
-    ipAddress: '192.168.1.101',
-    manufacturer: 'Nest',
-    model: 'Learning Thermostat 4th Gen',
-    firmwareVersion: '3.2.4',
-  },
-  {
-    id: 'dev-003',
-    name: 'iPhone 15 Pro',
-    category: 'mobile',
-    status: 'connected',
-    signalStrength: 95,
-    sensorAccuracy: 99,
-    bandwidth: { upload: 45, download: 120, used: 2048, limit: 10000 },
-    lastConnected: new Date(),
-    healthStatus: 'excellent',
-    batteryLevel: 64,
-    capabilities: ['Hotspot', 'AirDrop', 'Handoff', 'Continuity Camera'],
-    macAddress: 'AA:BB:CC:DD:EE:03',
-    ipAddress: '192.168.1.102',
-    manufacturer: 'Apple',
-    model: 'iPhone 15 Pro',
-    firmwareVersion: 'iOS 17.4',
-  },
-  {
-    id: 'dev-004',
-    name: 'Mechanical Keyboard',
-    category: 'peripheral',
-    status: 'connected',
-    signalStrength: 100,
-    sensorAccuracy: 100,
-    bandwidth: { upload: 0.01, download: 0.01, used: 1, limit: 50 },
-    lastConnected: new Date(),
-    healthStatus: 'excellent',
-    batteryLevel: 92,
-    capabilities: ['RGB Lighting', 'Macro Keys', 'N-Key Rollover'],
-    macAddress: 'AA:BB:CC:DD:EE:04',
-    manufacturer: 'Keychron',
-    model: 'Q1 Pro',
-    firmwareVersion: '2.1.0',
-  },
-  {
     id: 'dev-005',
     name: 'HomePod Mini',
     category: 'speaker',
@@ -104,71 +52,9 @@ export const mockDevices: Device[] = [
     model: 'Apple Watch Ultra 2',
     firmwareVersion: 'watchOS 10.4',
   },
-  {
-    id: 'dev-007',
-    name: 'Security Camera',
-    category: 'iot',
-    status: 'connected',
-    signalStrength: 72,
-    sensorAccuracy: 88,
-    bandwidth: { upload: 5, download: 0.5, used: 3500, limit: 5000 },
-    lastConnected: new Date(),
-    healthStatus: 'fair',
-    capabilities: ['1080p Video', 'Night Vision', 'Motion Detection', 'Two-way Audio'],
-    macAddress: 'AA:BB:CC:DD:EE:07',
-    ipAddress: '192.168.1.104',
-    manufacturer: 'Ring',
-    model: 'Indoor Cam Gen 2',
-    firmwareVersion: '2.0.45',
-  },
-  {
-    id: 'dev-008',
-    name: 'WiFi Router',
-    category: 'wifi',
-    status: 'connected',
-    signalStrength: 100,
-    sensorAccuracy: 99,
-    bandwidth: { upload: 500, download: 940, used: 45000, limit: 100000 },
-    lastConnected: new Date(),
-    healthStatus: 'excellent',
-    capabilities: ['WiFi 6E', 'Mesh Support', 'Parental Controls', 'QoS'],
-    macAddress: 'AA:BB:CC:DD:EE:08',
-    ipAddress: '192.168.1.1',
-    manufacturer: 'ASUS',
-    model: 'ROG Rapture GT-AXE16000',
-    firmwareVersion: '3.0.0.4.388',
-  },
 ];
 
-export const mockAlerts: Alert[] = [
-  {
-    id: 'alert-001',
-    deviceId: 'dev-006',
-    type: 'warning',
-    title: 'Low Battery',
-    message: 'Smart Watch battery is at 23%. Consider charging soon.',
-    timestamp: new Date(Date.now() - 1800000),
-    read: false,
-  },
-  {
-    id: 'alert-002',
-    deviceId: 'dev-007',
-    type: 'warning',
-    title: 'High Bandwidth Usage',
-    message: 'Security Camera has used 70% of its monthly bandwidth limit.',
-    timestamp: new Date(Date.now() - 3600000),
-    read: false,
-  },
-  {
-    id: 'alert-003',
-    deviceId: 'dev-007',
-    type: 'info',
-    title: 'Weak Signal Detected',
-    message: 'Security Camera signal strength is below optimal levels.',
-    timestamp: new Date(Date.now() - 7200000),
-    read: true,
-  },
-];
+export const mockAlerts: Alert[] = [];
 
 export const mockConnectionEvents: ConnectionEvent[] = [
   {
@@ -190,7 +76,7 @@ export const mockConnectionEvents: ConnectionEvent[] = [
 export const generateBandwidthHistory = (hours: number = 24): BandwidthDataPoint[] => {
   const data: BandwidthDataPoint[] = [];
   const now = Date.now();
-  
+
   for (let i = hours; i >= 0; i--) {
     data.push({
       timestamp: new Date(now - i * 3600000),
@@ -198,6 +84,6 @@ export const generateBandwidthHistory = (hours: number = 24): BandwidthDataPoint
       download: Math.random() * 150 + 50,
     });
   }
-  
+
   return data;
 };

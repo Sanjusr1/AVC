@@ -1,25 +1,18 @@
-import { 
-  Bluetooth, 
-  Wifi, 
-  Smartphone, 
-  Speaker, 
-  Watch, 
-  Keyboard,
-  Router,
-  Lightbulb,
-  Camera,
+import {
+  Bluetooth,
+  Speaker,
+  Watch,
   LucideIcon
 } from 'lucide-react';
 import { DeviceCategory } from '@/types/device';
 
 export const deviceIconMap: Record<DeviceCategory, LucideIcon> = {
   bluetooth: Bluetooth,
-  wifi: Router,
-  iot: Lightbulb,
-  mobile: Smartphone,
-  peripheral: Keyboard,
   speaker: Speaker,
   wearable: Watch,
+  'avc-mask': Bluetooth, // Fallback or specific icon if available
+  'avc-pro': Bluetooth,
+  'avc-lite': Bluetooth,
 };
 
 export const getDeviceIcon = (category: DeviceCategory): LucideIcon => {

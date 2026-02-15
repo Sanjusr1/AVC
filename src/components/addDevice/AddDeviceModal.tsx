@@ -1,13 +1,10 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Loader2, Radar, Keyboard, Wifi, Bluetooth, Check } from 'lucide-react';
+import { Radar, Bluetooth, Check, Smartphone, Loader2, RefreshCw } from 'lucide-react';
 import { DeviceCategory } from '@/types/device';
 import { cn } from '@/lib/utils';
+import { useBluetooth } from '@/context/BluetoothContext';
 
 interface AddDeviceModalProps {
   open: boolean;
@@ -15,212 +12,222 @@ interface AddDeviceModalProps {
   onAddDevice: (device: { name: string; category: DeviceCategory; macAddress: string }) => void;
 }
 
-const mockScanResults = [
-  { id: 'scan-1', name: 'Unknown Speaker', category: 'speaker' as DeviceCategory, signal: 85 },
-  { id: 'scan-2', name: 'Smart Bulb', category: 'iot' as DeviceCategory, signal: 72 },
-  { id: 'scan-3', name: 'Wireless Mouse', category: 'peripheral' as DeviceCategory, signal: 95 },
-];
-
 export const AddDeviceModal = ({ open, onOpenChange, onAddDevice }: AddDeviceModalProps) => {
-  const [isScanning, setIsScanning] = useState(false);
-  const [scanComplete, setScanComplete] = useState(false);
-  const [selectedScanDevice, setSelectedScanDevice] = useState<string | null>(null);
-  const [manualForm, setManualForm] = useState({
-    name: '',
-    category: '' as DeviceCategory | '',
-    macAddress: '',
-  });
+  const {
+    startScan,
+    stopScan,
+    isScanning,
+    scannedDevices,
+    connectToDevice,
+    disconnectDevice,
+    isConnecting,
+    isConnected,
+    connectedDevice
+  } = useBluetooth();
 
-  const handleScan = () => {
-    setIsScanning(true);
-    setScanComplete(false);
-    setSelectedScanDevice(null);
-    
-    setTimeout(() => {
-      setIsScanning(false);
-      setScanComplete(true);
-    }, 3000);
+  const [selectedDeviceId, setSelectedDeviceId] = useState<string | null>(null);
+  const [showSuccess, setShowSuccess] = useState(false);
+
+  // Handle modal close
+  const handleClose = () => {
+    if (isScanning) stopScan();
+    onOpenChange(false);
+    setShowSuccess(false);
   };
 
-  const handleManualSubmit = () => {
-    if (manualForm.name && manualForm.category && manualForm.macAddress) {
+  // Handle success state transition
+  useEffect(() => {
+    if (isConnected && connectedDevice) {
       onAddDevice({
-        name: manualForm.name,
-        category: manualForm.category as DeviceCategory,
-        macAddress: manualForm.macAddress,
+        name: connectedDevice.name,
+        category: connectedDevice.category,
+        macAddress: connectedDevice.macAddress
       });
-      onOpenChange(false);
-      setManualForm({ name: '', category: '', macAddress: '' });
+      setShowSuccess(true);
     }
-  };
+  }, [isConnected, connectedDevice]);
 
-  const handleScanDeviceAdd = () => {
-    const device = mockScanResults.find(d => d.id === selectedScanDevice);
+  const handleConnect = async () => {
+    const device = scannedDevices.find(d => d.id === selectedDeviceId);
     if (device) {
-      onAddDevice({
-        name: device.name,
-        category: device.category,
-        macAddress: `AA:BB:CC:DD:${Math.random().toString(16).substr(2, 2).toUpperCase()}:${Math.random().toString(16).substr(2, 2).toUpperCase()}`,
-      });
-      onOpenChange(false);
-      setScanComplete(false);
-      setSelectedScanDevice(null);
+      await connectToDevice(device);
     }
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-lg bg-card border-border">
+    <Dialog open={open} onOpenChange={handleClose}>
+      <DialogContent className="max-w-md bg-card border-border backdrop-blur-xl">
         <DialogHeader>
-          <DialogTitle>Add New Device</DialogTitle>
+          <DialogTitle className="text-center text-xl">Connect AVC Mask</DialogTitle>
         </DialogHeader>
 
-        <Tabs defaultValue="scan" className="mt-4">
-          <TabsList className="w-full grid grid-cols-2">
-            <TabsTrigger value="scan" className="gap-2">
-              <Radar size={16} />
-              Scan
-            </TabsTrigger>
-            <TabsTrigger value="manual" className="gap-2">
-              <Keyboard size={16} />
-              Manual
-            </TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="scan" className="mt-4 space-y-4">
-            {!scanComplete ? (
-              <div className="text-center py-8">
-                {isScanning ? (
-                  <>
-                    <div className="relative w-24 h-24 mx-auto mb-4">
-                      <div className="absolute inset-0 rounded-full border-2 border-primary/30 animate-ping" />
-                      <div className="absolute inset-2 rounded-full border-2 border-primary/50 animate-ping delay-150" />
-                      <div className="absolute inset-4 rounded-full border-2 border-primary/70 animate-ping delay-300" />
-                      <div className="absolute inset-0 flex items-center justify-center">
-                        <Radar size={32} className="text-primary animate-pulse" />
-                      </div>
-                    </div>
-                    <p className="text-muted-foreground">Scanning for nearby devices...</p>
-                  </>
-                ) : (
-                  <>
-                    <div className="w-16 h-16 rounded-full bg-secondary flex items-center justify-center mx-auto mb-4">
-                      <Wifi size={28} className="text-muted-foreground" />
-                    </div>
-                    <p className="text-muted-foreground mb-4">
-                      Scan for nearby Bluetooth, Wi-Fi, and IoT devices
-                    </p>
-                    <Button onClick={handleScan} variant="glow">
-                      <Radar size={18} />
-                      Start Scanning
-                    </Button>
-                  </>
-                )}
+        <div className="py-6">
+          {showSuccess ? (
+            <div className="flex flex-col items-center justify-center space-y-6 animate-scale-in">
+              <div className="w-20 h-20 rounded-full bg-success/20 flex items-center justify-center border-2 border-success/30">
+                <Check size={40} className="text-success" />
               </div>
-            ) : (
-              <div className="space-y-3">
-                <p className="text-sm text-muted-foreground">
-                  Found {mockScanResults.length} devices nearby
+              <div className="text-center space-y-2">
+                <h3 className="text-lg font-medium text-success">Connected Successfully!</h3>
+                <p className="text-muted-foreground text-sm max-w-[250px] mx-auto">
+                  Your {connectedDevice?.name} is ready. You can now monitor it from the dashboard.
                 </p>
-                {mockScanResults.map((device) => (
-                  <div
-                    key={device.id}
-                    className={cn(
-                      'p-4 rounded-lg border cursor-pointer transition-all',
-                      selectedScanDevice === device.id 
-                        ? 'border-primary bg-primary/5' 
-                        : 'border-border hover:border-border/80'
-                    )}
-                    onClick={() => setSelectedScanDevice(device.id)}
-                  >
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <div className={cn(
-                          'w-10 h-10 rounded-lg flex items-center justify-center',
-                          selectedScanDevice === device.id ? 'bg-primary/10 text-primary' : 'bg-secondary text-muted-foreground'
-                        )}>
-                          <Bluetooth size={20} />
-                        </div>
-                        <div>
-                          <p className="font-medium">{device.name}</p>
-                          <p className="text-xs text-muted-foreground capitalize">{device.category}</p>
-                        </div>
-                      </div>
-                      {selectedScanDevice === device.id && (
-                        <Check size={20} className="text-primary" />
-                      )}
-                    </div>
-                  </div>
-                ))}
-                <div className="flex gap-3 pt-4">
-                  <Button variant="outline" className="flex-1" onClick={handleScan}>
-                    Scan Again
-                  </Button>
-                  <Button 
-                    variant="glow" 
-                    className="flex-1" 
-                    disabled={!selectedScanDevice}
-                    onClick={handleScanDeviceAdd}
-                  >
-                    Add Device
-                  </Button>
+              </div>
+              <div className="flex flex-col w-full gap-2 pt-2">
+                <Button
+                  className="w-full bg-gradient-to-r from-success/80 to-emerald-600 hover:from-success hover:to-emerald-700"
+                  onClick={handleClose}
+                >
+                  Manage Device
+                </Button>
+                <Button
+                  variant="outline"
+                  className="w-full flex items-center gap-2"
+                  onClick={() => {
+                    setShowSuccess(false);
+                    startScan();
+                  }}
+                >
+                  <RefreshCw size={14} />
+                  Add More Devices
+                </Button>
+              </div>
+            </div>
+          ) : isConnecting ? (
+            <div className="flex flex-col items-center justify-center space-y-6">
+              <div className="relative">
+                <div className="w-20 h-20 rounded-full border-4 border-primary/30 flex items-center justify-center animate-spin">
+                  <Loader2 size={40} className="text-primary" />
                 </div>
               </div>
-            )}
-          </TabsContent>
-
-          <TabsContent value="manual" className="mt-4 space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="name">Device Name</Label>
-              <Input
-                id="name"
-                placeholder="e.g., Living Room Speaker"
-                value={manualForm.name}
-                onChange={(e) => setManualForm({ ...manualForm, name: e.target.value })}
-              />
+              <div className="text-center space-y-1">
+                <h3 className="font-medium">Pairing...</h3>
+                <p className="text-sm text-muted-foreground">Setting up secure connection</p>
+              </div>
             </div>
+          ) : isScanning ? (
+            <div className="space-y-6">
+              {/* Radar Animation */}
+              <div className="relative w-32 h-32 mx-auto">
+                <div className="absolute inset-0 rounded-full border-2 border-primary/20 animate-ping" />
+                <div className="absolute inset-4 rounded-full border-2 border-primary/40 animate-ping delay-300" />
+                <div className="absolute inset-8 rounded-full border-2 border-primary/60 animate-ping delay-700" />
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <Radar size={48} className="text-primary animate-pulse" />
+                </div>
+              </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="category">Category</Label>
-              <Select
-                value={manualForm.category}
-                onValueChange={(value) => setManualForm({ ...manualForm, category: value as DeviceCategory })}
+              <div className="text-center space-y-1">
+                <h3 className="font-medium">Searching for devices...</h3>
+                <p className="text-sm text-muted-foreground">Keep your mask nearby and powered on</p>
+              </div>
+
+              {/* Results List */}
+              <div className="space-y-2 mt-4 max-h-[200px] overflow-y-auto pr-2">
+                {connectedDevice && (
+                  <div className="mb-4">
+                    <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-2 px-1">Currently Connected</p>
+                    <div className="p-3 rounded-lg border border-primary bg-primary/5 flex items-center justify-between group">
+                      <div className="flex items-center gap-3">
+                        <div className="p-2 rounded-full bg-background border border-primary/20">
+                          <Bluetooth size={18} className="text-primary" />
+                        </div>
+                        <div>
+                          <p className="font-medium text-sm">{connectedDevice.name}</p>
+                          <p className="text-xs text-success">Connected</p>
+                        </div>
+                      </div>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-8 text-xs text-destructive hover:text-destructive hover:bg-destructive/10 opacity-0 group-hover:opacity-100 transition-opacity"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          disconnectDevice();
+                        }}
+                      >
+                        Disconnect
+                      </Button>
+                    </div>
+                  </div>
+                )}
+
+                <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-2 px-1">Devices in Range</p>
+                {scannedDevices.length === 0 ? (
+                  <p className="text-center text-xs text-muted-foreground py-4">
+                    No new devices found yet...
+                  </p>
+                ) : (
+                  scannedDevices
+                    .filter(d => d.id !== connectedDevice?.id)
+                    .map((device) => (
+                      <div
+                        key={device.id}
+                        className={cn(
+                          "p-3 rounded-lg border cursor-pointer transition-all flex items-center justify-between group",
+                          selectedDeviceId === device.id
+                            ? "border-primary bg-primary/10"
+                            : "border-border hover:border-primary/50 hover:bg-secondary/50"
+                        )}
+                        onClick={() => setSelectedDeviceId(device.id)}
+                      >
+                        <div className="flex items-center gap-3">
+                          <div className="p-2 rounded-full bg-background border border-border">
+                            <Bluetooth size={18} className="text-primary" />
+                          </div>
+                          <div>
+                            <p className="font-medium text-sm">{device.name}</p>
+                            <p className="text-xs text-muted-foreground">Signal: {device.signalStrength}%</p>
+                          </div>
+                        </div>
+                        {selectedDeviceId === device.id && (
+                          <div className="h-2 w-2 rounded-full bg-primary animate-pulse" />
+                        )}
+                      </div>
+                    ))
+                )}
+              </div>
+
+              <div className="flex gap-2">
+                <Button variant="outline" className="flex-1" onClick={stopScan}>
+                  Cancel
+                </Button>
+                <Button
+                  className="flex-1 bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600"
+                  disabled={!selectedDeviceId}
+                  onClick={handleConnect}
+                >
+                  Connect
+                </Button>
+              </div>
+            </div>
+          ) : (
+            <div className="space-y-6">
+              <div className="text-center space-y-4">
+                <div className="w-20 h-20 mx-auto rounded-full bg-secondary flex items-center justify-center">
+                  <Smartphone size={32} className="text-muted-foreground" />
+                </div>
+                <div className="space-y-2">
+                  <h3 className="font-medium text-lg">Let's set up your device</h3>
+                  <div className="text-sm text-muted-foreground space-y-1">
+                    <p>1. Turn on your AVC Mask</p>
+                    <p>2. Hold the power button for 3 seconds</p>
+                    <p>3. Wait for the blue LED to blink</p>
+                  </div>
+                </div>
+              </div>
+
+              <Button
+                className="w-full bg-gradient-to-r from-cyan-500 to-blue-500 text-white"
+                size="lg"
+                onClick={startScan}
               >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select category" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="bluetooth">Bluetooth</SelectItem>
-                  <SelectItem value="wifi">Wi-Fi</SelectItem>
-                  <SelectItem value="iot">IoT</SelectItem>
-                  <SelectItem value="mobile">Mobile</SelectItem>
-                  <SelectItem value="peripheral">Peripheral</SelectItem>
-                  <SelectItem value="speaker">Speaker</SelectItem>
-                  <SelectItem value="wearable">Wearable</SelectItem>
-                </SelectContent>
-              </Select>
+                <Bluetooth className="mr-2 h-4 w-4" />
+                Start Pairing
+              </Button>
             </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="mac">MAC Address</Label>
-              <Input
-                id="mac"
-                placeholder="AA:BB:CC:DD:EE:FF"
-                value={manualForm.macAddress}
-                onChange={(e) => setManualForm({ ...manualForm, macAddress: e.target.value.toUpperCase() })}
-              />
-            </div>
-
-            <Button 
-              variant="glow" 
-              className="w-full mt-4"
-              disabled={!manualForm.name || !manualForm.category || !manualForm.macAddress}
-              onClick={handleManualSubmit}
-            >
-              Add Device
-            </Button>
-          </TabsContent>
-        </Tabs>
+          )}
+        </div>
       </DialogContent>
     </Dialog>
   );

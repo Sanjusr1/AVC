@@ -3,7 +3,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Wifi, Lock, Mail, Eye, EyeOff, ArrowRight } from 'lucide-react';
+import { Lock, Mail, Eye, EyeOff, ArrowRight } from 'lucide-react';
+import { AVCLogo } from '@/components/ui/avc-logo';
 
 interface LoginProps {
   onLogin: () => void;
@@ -14,14 +15,16 @@ export const Login = ({ onLogin }: LoginProps) => {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [rememberMe, setRememberMe] = useState(false);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    
+
     // Simulate login
     setTimeout(() => {
       setIsLoading(false);
+      console.log('Login submitted:', { email, rememberMe });
       onLogin();
     }, 1500);
   };
@@ -30,7 +33,7 @@ export const Login = ({ onLogin }: LoginProps) => {
     <div className="min-h-screen flex items-center justify-center p-4 bg-background relative overflow-hidden">
       {/* Background grid pattern */}
       <div className="absolute inset-0 bg-grid-pattern bg-grid opacity-20" />
-      
+
       {/* Gradient orbs */}
       <div className="absolute top-1/4 -left-32 w-96 h-96 bg-primary/20 rounded-full blur-3xl" />
       <div className="absolute bottom-1/4 -right-32 w-96 h-96 bg-accent/20 rounded-full blur-3xl" />
@@ -38,7 +41,7 @@ export const Login = ({ onLogin }: LoginProps) => {
       <Card className="w-full max-w-md border-border/50 bg-card/80 backdrop-blur-xl animate-scale-in relative z-10">
         <CardHeader className="text-center pb-2">
           <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-4 animate-float">
-            <Wifi size={32} className="text-primary" />
+            <AVCLogo className="w-12 h-12" />
           </div>
           <CardTitle className="text-2xl">
             <span className="gradient-text">AVC</span> Manager
@@ -93,7 +96,12 @@ export const Login = ({ onLogin }: LoginProps) => {
 
             <div className="flex items-center justify-between text-sm">
               <label className="flex items-center gap-2 cursor-pointer">
-                <input type="checkbox" className="rounded border-border" />
+                <input
+                  type="checkbox"
+                  className="rounded border-border text-primary focus:ring-primary h-4 w-4"
+                  checked={rememberMe}
+                  onChange={(e) => setRememberMe(e.target.checked)}
+                />
                 <span className="text-muted-foreground">Remember me</span>
               </label>
               <Button variant="link" className="p-0 h-auto text-primary">
@@ -101,9 +109,9 @@ export const Login = ({ onLogin }: LoginProps) => {
               </Button>
             </div>
 
-            <Button 
-              type="submit" 
-              variant="glow" 
+            <Button
+              type="submit"
+              variant="glow"
               className="w-full"
               disabled={isLoading}
             >

@@ -1,11 +1,10 @@
-export type DeviceCategory = 
-  | 'bluetooth' 
-  | 'wifi' 
-  | 'iot' 
-  | 'mobile' 
-  | 'peripheral' 
+export type DeviceCategory =
+  | 'bluetooth'
   | 'speaker'
-  | 'wearable';
+  | 'wearable'
+  | 'avc-mask'
+  | 'avc-pro'
+  | 'avc-lite';
 
 export type ConnectionStatus = 'connected' | 'disconnected' | 'connecting' | 'error';
 

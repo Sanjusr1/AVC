@@ -4,12 +4,12 @@ import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import { Slider } from '@/components/ui/slider';
 import { Label } from '@/components/ui/label';
-import { 
-  RefreshCw, 
-  Zap, 
-  Shield, 
-  BellRing, 
-  Gauge, 
+import {
+  RefreshCw,
+  Zap,
+  Shield,
+  BellRing,
+  Gauge,
   Wifi,
   Volume2,
   Battery,
@@ -24,10 +24,22 @@ export const Controls = () => {
   const [notifications, setNotifications] = useState(true);
   const [signalBoost, setSignalBoost] = useState(50);
   const [isOptimizing, setIsOptimizing] = useState(false);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [isScanning, setIsScanning] = useState(false);
 
   const handleOptimize = () => {
     setIsOptimizing(true);
     setTimeout(() => setIsOptimizing(false), 2000);
+  };
+
+  const handleRefresh = () => {
+    setIsRefreshing(true);
+    setTimeout(() => setIsRefreshing(false), 1500);
+  };
+
+  const handleScan = () => {
+    setIsScanning(true);
+    setTimeout(() => setIsScanning(false), 3000);
   };
 
   return (
@@ -48,8 +60,8 @@ export const Controls = () => {
             <CardDescription>Instant device management actions</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            <Button 
-              variant="glow" 
+            <Button
+              variant="glow"
               className="w-full"
               onClick={handleOptimize}
               disabled={isOptimizing}
@@ -61,13 +73,23 @@ export const Controls = () => {
               )}
               {isOptimizing ? 'Optimizing...' : 'Optimize All Devices'}
             </Button>
-            <Button variant="outline" className="w-full">
-              <RefreshCw size={18} />
-              Refresh Connections
+            <Button
+              variant="outline"
+              className="w-full"
+              onClick={handleRefresh}
+              disabled={isRefreshing}
+            >
+              <RefreshCw size={18} className={cn(isRefreshing && "animate-spin")} />
+              {isRefreshing ? 'Refreshing...' : 'Refresh Connections'}
             </Button>
-            <Button variant="outline" className="w-full">
-              <Shield size={18} />
-              Run Security Scan
+            <Button
+              variant="outline"
+              className="w-full"
+              onClick={handleScan}
+              disabled={isScanning}
+            >
+              <Shield size={18} className={cn(isScanning && "animate-pulse")} />
+              {isScanning ? 'Scanning...' : 'Run Security Scan'}
             </Button>
           </CardContent>
         </Card>
@@ -90,9 +112,9 @@ export const Controls = () => {
                   <p className="text-xs text-muted-foreground">Automatically optimize performance</p>
                 </div>
               </div>
-              <Switch 
-                id="auto-optimize" 
-                checked={autoOptimize} 
+              <Switch
+                id="auto-optimize"
+                checked={autoOptimize}
                 onCheckedChange={setAutoOptimize}
               />
             </div>
@@ -105,9 +127,9 @@ export const Controls = () => {
                   <p className="text-xs text-muted-foreground">Reduce power consumption</p>
                 </div>
               </div>
-              <Switch 
-                id="power-saving" 
-                checked={powerSaving} 
+              <Switch
+                id="power-saving"
+                checked={powerSaving}
                 onCheckedChange={setPowerSaving}
               />
             </div>
@@ -120,9 +142,9 @@ export const Controls = () => {
                   <p className="text-xs text-muted-foreground">Update device status automatically</p>
                 </div>
               </div>
-              <Switch 
-                id="auto-refresh" 
-                checked={autoRefresh} 
+              <Switch
+                id="auto-refresh"
+                checked={autoRefresh}
                 onCheckedChange={setAutoRefresh}
               />
             </div>
@@ -135,9 +157,9 @@ export const Controls = () => {
                   <p className="text-xs text-muted-foreground">Receive device alerts</p>
                 </div>
               </div>
-              <Switch 
-                id="notifications" 
-                checked={notifications} 
+              <Switch
+                id="notifications"
+                checked={notifications}
                 onCheckedChange={setNotifications}
               />
             </div>

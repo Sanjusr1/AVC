@@ -5,6 +5,8 @@ import { Input } from '@/components/ui/input';
 import { Bot, Send, Mic, MicOff, Sparkles } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
+import { Device, Alert } from '@/types/device';
+
 interface Message {
   id: string;
   role: 'user' | 'assistant';
@@ -12,7 +14,12 @@ interface Message {
   timestamp: Date;
 }
 
-export const AIAssistant = () => {
+interface AIAssistantProps {
+  devices: Device[];
+  alerts: Alert[];
+}
+
+export const AIAssistant = ({ devices, alerts }: AIAssistantProps) => {
   const [open, setOpen] = useState(false);
   const [input, setInput] = useState('');
   const [isListening, setIsListening] = useState(false);
@@ -38,24 +45,44 @@ export const AIAssistant = () => {
     setMessages([...messages, userMessage]);
     setInput('');
 
-    // Simulate AI response
+    // Generate context-aware response
     setTimeout(() => {
-      const responses = [
-        "I can see you have 8 devices connected. Would you like me to run a diagnostic on any of them?",
-        "I noticed your Security Camera has weak signal. I recommend moving it closer to your router or adding a mesh node.",
-        "Your bandwidth usage looks good! The Smart Thermostat is using minimal data as expected.",
-        "Would you like me to help you configure noise cancellation for your AirPods Pro?",
-      ];
+      const activeDevices = devices.filter(d => d.status === 'connected');
+      const unreadAlerts = alerts.filter(a => !a.read);
+
+      let response = "I'm analyzing your current network state... ";
+
+      if (input.toLowerCase().includes('device') || input.toLowerCase().includes('status')) {
+        if (activeDevices.length > 0) {
+          response = `You currently have ${activeDevices.length} active device(s): ${activeDevices.map(d => d.name).join(', ')}. Everything looks stable.`;
+        } else {
+          response = "No devices are currently connected. Would you like me to guide you through the pairing process?";
+        }
+      } else if (input.toLowerCase().includes('alert') || input.toLowerCase().includes('problem')) {
+        if (unreadAlerts.length > 0) {
+          response = `I see ${unreadAlerts.length} unread alert(s). The most critical one is: "${unreadAlerts[0].title}". Should I help you resolve this?`;
+        } else {
+          response = "All systems are nominal. No active alerts or issues detected at this time.";
+        }
+      } else {
+        const responses = [
+          `I'm monitoring your ${activeDevices.length} devices. Do you need help with anything specific?`,
+          "I can help you optimize your connectivity or troubleshoot signal issues. What's on your mind?",
+          "Your current bandwidth usage is stable. Is there a specific device you're concerned about?",
+          "I'm here to help you get the most out of your AVC ecosystem. Feel free to ask me anything."
+        ];
+        response = responses[Math.floor(Math.random() * responses.length)];
+      }
 
       const assistantMessage: Message = {
         id: (Date.now() + 1).toString(),
         role: 'assistant',
-        content: responses[Math.floor(Math.random() * responses.length)],
+        content: response,
         timestamp: new Date(),
       };
 
       setMessages((prev) => [...prev, assistantMessage]);
-    }, 1000);
+    }, 800);
   };
 
   const toggleListening = () => {

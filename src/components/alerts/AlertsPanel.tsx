@@ -25,9 +25,9 @@ const alertColors = {
   info: 'text-primary bg-primary/10',
 };
 
-export const AlertsPanel = ({ 
-  alerts, 
-  open, 
+export const AlertsPanel = ({
+  alerts,
+  open,
   onOpenChange,
   onMarkAsRead,
   onClearAll
@@ -62,8 +62,8 @@ export const AlertsPanel = ({
               <div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center mx-auto mb-3">
                 <CheckCircle size={24} className="text-muted-foreground" />
               </div>
-              <p className="text-muted-foreground">No alerts</p>
-              <p className="text-sm text-muted-foreground/70">All systems operational</p>
+              <p className="text-muted-foreground">No current notifications</p>
+              <p className="text-sm text-muted-foreground/70">You're all caught up</p>
             </div>
           ) : (
             alerts.map((alert) => {

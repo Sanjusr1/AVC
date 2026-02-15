@@ -29,12 +29,17 @@ export const DeviceGrid = ({ devices, onDeviceClick, className }: DeviceGridProp
       className
     )}>
       {devices.map((device, index) => (
-        <DeviceCard
+        <div
           key={device.id}
-          device={device}
-          onClick={() => onDeviceClick(device)}
-          index={index}
-        />
+          className="animate-fade-in"
+          style={{ animationDelay: `${index * 75}ms` }}
+        >
+          <DeviceCard
+            device={device}
+            onClick={() => onDeviceClick(device)}
+            index={index}
+          />
+        </div>
       ))}
     </div>
   );

@@ -2,11 +2,11 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
-import { 
-  User, 
-  Bell, 
-  Palette, 
-  Shield, 
+import {
+  User,
+  Bell,
+  Palette,
+  Shield,
   Database,
   Download,
   Trash2,
@@ -15,16 +15,33 @@ import {
   Globe
 } from 'lucide-react';
 import { useState } from 'react';
+import { useToast } from '@/hooks/use-toast';
 
 export const Settings = () => {
-  const [darkMode, setDarkMode] = useState(true);
+  const { toast } = useToast();
+  const [darkMode, setDarkMode] = useState(() => {
+    return !document.documentElement.classList.contains('light');
+  });
   const [pushNotifications, setPushNotifications] = useState(true);
   const [emailNotifications, setEmailNotifications] = useState(false);
   const [dataSharing, setDataSharing] = useState(false);
 
   const toggleTheme = () => {
-    setDarkMode(!darkMode);
-    document.documentElement.classList.toggle('light');
+    const newDarkMode = !darkMode;
+    setDarkMode(newDarkMode);
+
+    if (newDarkMode) {
+      document.documentElement.classList.remove('light');
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.add('light');
+      document.documentElement.classList.remove('dark');
+    }
+
+    toast({
+      title: `${newDarkMode ? 'Dark' : 'Light'} Mode Enabled`,
+      description: `Switched to ${newDarkMode ? 'dark' : 'light'} theme`,
+    });
   };
 
   return (
@@ -54,10 +71,28 @@ export const Settings = () => {
                 <p className="text-sm text-muted-foreground">guest@avc.local</p>
               </div>
             </div>
-            <Button variant="outline" className="w-full">
+            <Button
+              variant="outline"
+              className="w-full"
+              onClick={() => {
+                toast({
+                  title: "Redirecting...",
+                  description: "Opening profile editor",
+                });
+              }}
+            >
               Edit Profile
             </Button>
-            <Button variant="outline" className="w-full">
+            <Button
+              variant="outline"
+              className="w-full"
+              onClick={() => {
+                toast({
+                  title: "Security",
+                  description: "Password reset link sent to your email",
+                });
+              }}
+            >
               Change Password
             </Button>
           </CardContent>

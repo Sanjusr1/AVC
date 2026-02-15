@@ -1,4 +1,5 @@
 import { useState, useMemo } from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Device, Alert, DeviceCategory } from '@/types/device';
 import { mockDevices, mockAlerts } from '@/data/mockDevices';
 import { Header } from '@/components/layout/Header';
@@ -12,15 +13,28 @@ import { StatsOverview } from '@/components/stats/StatsOverview';
 import { Controls } from './Controls';
 import { Settings } from './Settings';
 import { About } from './About';
+import { Profile } from './Profile';
+import { Health } from './Health';
+import { DeviceConfiguration } from './DeviceConfiguration';
+import { ConnectHero } from '@/components/dashboard/ConnectHero';
+import { LiveMonitor } from '@/components/dashboard/LiveMonitor';
+import { HealthMonitor } from '@/components/dashboard/HealthMonitor';
+import { useBluetooth } from '@/context/BluetoothContext';
 import { useToast } from '@/hooks/use-toast';
+import { Activity } from 'lucide-react';
 
-export const Dashboard = () => {
+interface DashboardProps {
+  onLogout?: () => void;
+}
+
+export const Dashboard = ({ onLogout }: DashboardProps) => {
   const { toast } = useToast();
-  const [devices, setDevices] = useState<Device[]>(mockDevices);
+  const [devices, setDevices] = useState<Device[]>([]);
   const [alerts, setAlerts] = useState<Alert[]>(mockAlerts);
   const [searchQuery, setSearchQuery] = useState('');
   const [categoryFilter, setCategoryFilter] = useState<DeviceCategory | 'all'>('all');
   const [selectedDevice, setSelectedDevice] = useState<Device | null>(null);
+  const [detailModalOpen, setDetailModalOpen] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [alertsOpen, setAlertsOpen] = useState(false);
   const [addDeviceOpen, setAddDeviceOpen] = useState(false);
@@ -39,31 +53,23 @@ export const Dashboard = () => {
 
   const handleDeviceClick = (device: Device) => {
     setSelectedDevice(device);
+    setDetailModalOpen(true);
   };
+
+  const { isConnected, connectedDevice, disconnectDevice, connectToDevice: ctxConnect } = useBluetooth();
 
   const handleDisconnect = (deviceId: string) => {
-    setDevices(devices.map(d => 
-      d.id === deviceId 
-        ? { ...d, status: 'disconnected' as const, signalStrength: 0 }
-        : d
-    ));
+    disconnectDevice();
+    setDevices(devices.filter(d => d.id !== deviceId));
     setSelectedDevice(null);
-    toast({
-      title: 'Device Disconnected',
-      description: 'The device has been disconnected successfully.',
-    });
+    setDetailModalOpen(false);
   };
 
-  const handleConnect = (deviceId: string) => {
-    setDevices(devices.map(d => 
-      d.id === deviceId 
-        ? { ...d, status: 'connected' as const, signalStrength: 85, lastConnected: new Date() }
-        : d
-    ));
-    toast({
-      title: 'Device Connected',
-      description: 'The device has been connected successfully.',
-    });
+  const handleConnect = async (deviceId: string) => {
+    const device = devices.find(d => d.id === deviceId);
+    if (device) {
+      await ctxConnect(device);
+    }
   };
 
   const handleRemove = (deviceId: string) => {
@@ -98,7 +104,7 @@ export const Dashboard = () => {
   };
 
   const handleMarkAlertAsRead = (alertId: string) => {
-    setAlerts(alerts.map(a => 
+    setAlerts(alerts.map(a =>
       a.id === alertId ? { ...a, read: true } : a
     ));
   };
@@ -115,21 +121,55 @@ export const Dashboard = () => {
         return <Settings />;
       case 'about':
         return <About />;
+      case 'health':
+        return <Health onBack={() => setCurrentPage('dashboard')} />;
+      case 'profile':
+        return <Profile onNavigate={setCurrentPage} onSignOut={onLogout} />;
+      case 'configuration':
+        return selectedDevice ? (
+          <DeviceConfiguration
+            device={selectedDevice}
+            onBack={() => setCurrentPage('dashboard')}
+          />
+        ) : null;
       default:
+        if (!isConnected) {
+          return (
+            <ConnectHero onConnect={() => setAddDeviceOpen(true)} />
+          );
+        }
+
         return (
-          <>
+          <div className="space-y-6">
+            <LiveMonitor device={connectedDevice!} />
             <StatsOverview devices={devices} alertCount={unreadAlerts} />
-            <DeviceGrid 
-              devices={filteredDevices} 
-              onDeviceClick={handleDeviceClick} 
-            />
-          </>
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 pt-4">
+              {/* Device Management Section */}
+              <div>
+                <h3 className="text-lg font-medium mb-3">Device Management</h3>
+                <DeviceGrid
+                  devices={filteredDevices}
+                  onDeviceClick={handleDeviceClick}
+                />
+              </div>
+
+              {/* Health Manager Section */}
+              <div>
+                <h3 className="text-lg font-medium mb-3 flex items-center gap-2">
+                  <Activity size={20} className="text-primary" />
+                  Health Monitoring
+                </h3>
+                <HealthMonitor />
+              </div>
+            </div>
+          </div>
         );
     }
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background flex flex-col">
       <Header
         searchQuery={searchQuery}
         onSearchChange={setSearchQuery}
@@ -137,29 +177,37 @@ export const Dashboard = () => {
         onMenuClick={() => setSidebarOpen(!sidebarOpen)}
         onAlertsClick={() => setAlertsOpen(true)}
         onSettingsClick={() => setCurrentPage('settings')}
+        onProfileClick={() => setCurrentPage('profile')}
       />
 
-      <Sidebar
-        isOpen={sidebarOpen}
-        onClose={() => setSidebarOpen(false)}
-        activeFilter={categoryFilter}
-        onFilterChange={setCategoryFilter}
-        onAddDevice={() => setAddDeviceOpen(true)}
-        onNavigate={setCurrentPage}
-        currentPage={currentPage}
-      />
+      <div className="flex flex-1">
+        <Sidebar
+          isOpen={sidebarOpen}
+          onClose={() => setSidebarOpen(false)}
+          activeFilter={categoryFilter}
+          onFilterChange={setCategoryFilter}
+          onAddDevice={() => setAddDeviceOpen(true)}
+          onNavigate={setCurrentPage}
+          currentPage={currentPage}
+        />
 
-      <main className="lg:ml-64 pt-6 pb-24 px-4 lg:px-6">
-        {renderContent()}
-      </main>
+        <main className="flex-1 pt-6 pb-24 px-4 lg:px-6">
+          {renderContent()}
+        </main>
+      </div>
 
       <DeviceDetailModal
         device={selectedDevice}
-        open={!!selectedDevice}
-        onOpenChange={(open) => !open && setSelectedDevice(null)}
+        open={detailModalOpen}
+        onOpenChange={setDetailModalOpen}
         onDisconnect={handleDisconnect}
         onConnect={handleConnect}
         onRemove={handleRemove}
+        onConfigure={(device) => {
+          setSelectedDevice(device);
+          setDetailModalOpen(false);
+          setCurrentPage('configuration');
+        }}
       />
 
       <AlertsPanel
@@ -176,7 +224,7 @@ export const Dashboard = () => {
         onAddDevice={handleAddDevice}
       />
 
-      <AIAssistant />
+      <AIAssistant devices={devices} alerts={alerts} />
     </div>
   );
 };
