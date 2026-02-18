@@ -2,7 +2,7 @@ import React, { createContext, useContext, useState, useEffect, ReactNode } from
 import { Device, DeviceCategory } from '@/types/device';
 import { useToast } from '@/hooks/use-toast';
 
-interface BluetoothContextType {
+interface WifiContextType {
     isScanning: boolean;
     isConnected: boolean;
     isConnecting: boolean;
@@ -17,12 +17,12 @@ interface BluetoothContextType {
     disconnectDevice: () => void;
 }
 
-const BluetoothContext = createContext<BluetoothContextType | undefined>(undefined);
+const WifiContext = createContext<WifiContextType | undefined>(undefined);
 
-export const useBluetooth = () => {
-    const context = useContext(BluetoothContext);
+export const useWifi = () => {
+    const context = useContext(WifiContext);
     if (!context) {
-        throw new Error('useBluetooth must be used within a BluetoothProvider');
+        throw new Error('useWifi must be used within a WifiProvider');
     }
     return context;
 };
@@ -40,7 +40,7 @@ const MOCK_AVC_DEVICES: Device[] = [
         lastConnected: new Date(),
         healthStatus: 'excellent',
         capabilities: ['Speech Synthesis', 'Muscle Sensing', 'Airflow Analysis'],
-        macAddress: 'AV:C1:BE:RY:L1:01',
+        ipAddress: '192.168.1.101',
         batteryLevel: 92
     },
     {
@@ -54,7 +54,7 @@ const MOCK_AVC_DEVICES: Device[] = [
         lastConnected: new Date(),
         healthStatus: 'good',
         capabilities: ['Speech Synthesis', 'Pro Audio', 'Muscle Sensing', 'Airflow Analysis'],
-        macAddress: 'AV:C1:PR:O2:M3:02',
+        ipAddress: '192.168.1.102',
         batteryLevel: 65
     },
     {
@@ -68,7 +68,7 @@ const MOCK_AVC_DEVICES: Device[] = [
         lastConnected: new Date(),
         healthStatus: 'excellent',
         capabilities: ['Spatial Audio', 'Echo Cancellation', 'Multi-room Sync'],
-        macAddress: 'AV:C1:AU:D1:O3:99',
+        ipAddress: '192.168.1.103',
         batteryLevel: 100
     },
     {
@@ -82,12 +82,12 @@ const MOCK_AVC_DEVICES: Device[] = [
         lastConnected: new Date(),
         healthStatus: 'excellent',
         capabilities: ['Ultra-Low Latency', 'Neural Synthesis', 'Muscle Sensing'],
-        macAddress: 'AV:C2:BE:RY:L2:02',
+        ipAddress: '192.168.1.104',
         batteryLevel: 85
     }
 ];
 
-export const BluetoothProvider = ({ children }: { children: ReactNode }) => {
+export const WifiProvider = ({ children }: { children: ReactNode }) => {
     const { toast } = useToast();
     const [isScanning, setIsScanning] = useState(false);
     const [isConnecting, setIsConnecting] = useState(false);
@@ -146,7 +146,7 @@ export const BluetoothProvider = ({ children }: { children: ReactNode }) => {
 
         toast({
             title: "Device Connected",
-            description: `Successfully connected to ${device.name}`,
+            description: `Successfully connected to ${device.name} via WiFi`,
         });
 
         startMonitoring();
@@ -203,7 +203,7 @@ export const BluetoothProvider = ({ children }: { children: ReactNode }) => {
     }, []);
 
     return (
-        <BluetoothContext.Provider
+        <WifiContext.Provider
             value={{
                 isScanning,
                 isConnected,
@@ -220,6 +220,7 @@ export const BluetoothProvider = ({ children }: { children: ReactNode }) => {
             }}
         >
             {children}
-        </BluetoothContext.Provider>
+        </WifiContext.Provider>
     );
 };
+

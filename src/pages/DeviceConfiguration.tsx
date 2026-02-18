@@ -79,7 +79,7 @@ export const DeviceConfiguration = ({ device, onBack }: DeviceConfigurationProps
                                 Configure <span className="gradient-text">{device.name}</span>
                             </h1>
                             <p className="text-xs text-muted-foreground font-mono uppercase tracking-widest">
-                                ID: {device.macAddress}
+                                IP: {device.ipAddress || '192.168.1.100'}
                             </p>
                         </div>
                     </div>

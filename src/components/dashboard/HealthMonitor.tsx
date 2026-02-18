@@ -1,4 +1,4 @@
-import { useBluetooth } from '@/context/BluetoothContext';
+import { useWifi } from '@/context/WifiContext';
 import {
     Activity,
     Heart,
@@ -11,7 +11,7 @@ import {
 import { useState, useEffect } from 'react';
 
 export const HealthMonitor = () => {
-    const { isConnected } = useBluetooth();
+    const { isConnected } = useWifi();
 
     // Simulated health metrics
     const [heartRate, setHeartRate] = useState(72);

@@ -1,5 +1,5 @@
 export type DeviceCategory =
-  | 'bluetooth'
+  | 'wifi'
   | 'speaker'
   | 'wearable'
   | 'avc-mask'
@@ -27,7 +27,7 @@ export interface Device {
   healthStatus: HealthStatus;
   batteryLevel?: number; // 0-100
   capabilities: string[];
-  macAddress: string;
+  macAddress?: string;
   ipAddress?: string;
   firmwareVersion?: string;
   manufacturer?: string;

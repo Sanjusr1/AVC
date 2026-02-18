@@ -10,10 +10,10 @@ import {
   Shield,
   Cpu
 } from 'lucide-react';
-import { useBluetooth } from '@/context/BluetoothContext';
+import { useWifi } from '@/context/WifiContext';
 
 export const About = () => {
-  const { isConnected, connectedDevice } = useBluetooth();
+  const { isConnected, connectedDevice } = useWifi();
 
   return (
     <div className="space-y-8 animate-fade-in max-w-6xl pb-10">
@@ -53,7 +53,7 @@ export const About = () => {
                 </div>
                 <div className="flex justify-between border-b border-border/50 pb-2">
                   <span className="text-muted-foreground">Connectivity</span>
-                  <span className="font-mono">Bluetooth 5.3 LE</span>
+                  <span className="font-mono">WiFi 6 (802.11ax)</span>
                 </div>
                 <div className="flex justify-between border-b border-border/50 pb-2">
                   <span className="text-muted-foreground">Status</span>

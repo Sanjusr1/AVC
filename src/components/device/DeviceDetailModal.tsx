@@ -256,8 +256,8 @@ export const DeviceDetailModal = ({
                 >
                   <Speaker size={32} className="text-muted-foreground" />
                   <div className="text-center">
-                    <span className="block font-medium text-muted-foreground">Bluetooth Speaker</span>
-                    <span className="text-xs text-muted-foreground">Tap to connect</span>
+                    <span className="block font-medium text-muted-foreground">Network Speaker</span>
+                    <span className="text-xs text-muted-foreground">Tap to connect via WiFi</span>
                   </div>
                 </Button>
               </div>
@@ -324,9 +324,9 @@ export const DeviceDetailModal = ({
 
           <TabsContent value="details" className="space-y-4 mt-4">
             <div className="glass-card p-4 space-y-3">
-              <DetailRow label="MAC Address" value={device.macAddress} />
-              <DetailRow label="Serial Number" value="AVC-X1-88239-L" />
               {device.ipAddress && <DetailRow label="IP Address" value={device.ipAddress} />}
+              {device.macAddress && <DetailRow label="MAC Address" value={device.macAddress} />}
+              <DetailRow label="Serial Number" value="AVC-X1-88239-L" />
               {device.manufacturer && <DetailRow label="Manufacturer" value={device.manufacturer} />}
               {device.model && <DetailRow label="Model" value={device.model} />}
               {device.firmwareVersion && <DetailRow label="Firmware" value={device.firmwareVersion} />}

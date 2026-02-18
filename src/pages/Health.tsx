@@ -1,7 +1,7 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
-import { useBluetooth } from '@/context/BluetoothContext';
+import { useWifi } from '@/context/WifiContext';
 import {
     Activity,
     Heart,
@@ -21,7 +21,7 @@ interface HealthProps {
 }
 
 export const Health = ({ onBack }: HealthProps) => {
-    const { isConnected, connectedDevice } = useBluetooth();
+    const { isConnected, connectedDevice } = useWifi();
 
     // Simulated health metrics
     const [heartRate, setHeartRate] = useState(72);

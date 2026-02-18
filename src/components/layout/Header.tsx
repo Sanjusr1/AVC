@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
-import { useBluetooth } from '@/context/BluetoothContext';
+import { useWifi } from '@/context/WifiContext';
 import { AVCLogo } from '@/components/ui/avc-logo';
 
 interface HeaderProps {
@@ -25,7 +25,7 @@ export const Header = ({
   onSettingsClick,
   onProfileClick,
 }: HeaderProps) => {
-  const { isConnected, batteryLevel } = useBluetooth();
+  const { isConnected, batteryLevel } = useWifi();
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/50 bg-background/80 backdrop-blur-xl">

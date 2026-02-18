@@ -1,15 +1,15 @@
 import { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { Radar, Bluetooth, Check, Smartphone, Loader2, RefreshCw } from 'lucide-react';
+import { Radar, Wifi, Check, Smartphone, Loader2, RefreshCw } from 'lucide-react';
 import { DeviceCategory } from '@/types/device';
 import { cn } from '@/lib/utils';
-import { useBluetooth } from '@/context/BluetoothContext';
+import { useWifi } from '@/context/WifiContext';
 
 interface AddDeviceModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onAddDevice: (device: { name: string; category: DeviceCategory; macAddress: string }) => void;
+  onAddDevice: (device: { name: string; category: DeviceCategory; ipAddress: string }) => void;
 }
 
 export const AddDeviceModal = ({ open, onOpenChange, onAddDevice }: AddDeviceModalProps) => {
@@ -23,7 +23,7 @@ export const AddDeviceModal = ({ open, onOpenChange, onAddDevice }: AddDeviceMod
     isConnecting,
     isConnected,
     connectedDevice
-  } = useBluetooth();
+  } = useWifi();
 
   const [selectedDeviceId, setSelectedDeviceId] = useState<string | null>(null);
   const [showSuccess, setShowSuccess] = useState(false);
@@ -41,7 +41,7 @@ export const AddDeviceModal = ({ open, onOpenChange, onAddDevice }: AddDeviceMod
       onAddDevice({
         name: connectedDevice.name,
         category: connectedDevice.category,
-        macAddress: connectedDevice.macAddress
+        ipAddress: connectedDevice.ipAddress || '192.168.1.100'
       });
       setShowSuccess(true);
     }
@@ -101,8 +101,8 @@ export const AddDeviceModal = ({ open, onOpenChange, onAddDevice }: AddDeviceMod
                 </div>
               </div>
               <div className="text-center space-y-1">
-                <h3 className="font-medium">Pairing...</h3>
-                <p className="text-sm text-muted-foreground">Setting up secure connection</p>
+                <h3 className="font-medium">Connecting...</h3>
+                <p className="text-sm text-muted-foreground">Setting up secure WiFi connection</p>
               </div>
             </div>
           ) : isScanning ? (
@@ -119,7 +119,7 @@ export const AddDeviceModal = ({ open, onOpenChange, onAddDevice }: AddDeviceMod
 
               <div className="text-center space-y-1">
                 <h3 className="font-medium">Searching for devices...</h3>
-                <p className="text-sm text-muted-foreground">Keep your mask nearby and powered on</p>
+                <p className="text-sm text-muted-foreground">Keep your mask nearby and connected to power</p>
               </div>
 
               {/* Results List */}
@@ -130,7 +130,7 @@ export const AddDeviceModal = ({ open, onOpenChange, onAddDevice }: AddDeviceMod
                     <div className="p-3 rounded-lg border border-primary bg-primary/5 flex items-center justify-between group">
                       <div className="flex items-center gap-3">
                         <div className="p-2 rounded-full bg-background border border-primary/20">
-                          <Bluetooth size={18} className="text-primary" />
+                          <Wifi size={18} className="text-primary" />
                         </div>
                         <div>
                           <p className="font-medium text-sm">{connectedDevice.name}</p>
@@ -152,7 +152,7 @@ export const AddDeviceModal = ({ open, onOpenChange, onAddDevice }: AddDeviceMod
                   </div>
                 )}
 
-                <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-2 px-1">Devices in Range</p>
+                <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-2 px-1">Devices on Network</p>
                 {scannedDevices.length === 0 ? (
                   <p className="text-center text-xs text-muted-foreground py-4">
                     No new devices found yet...
@@ -173,7 +173,7 @@ export const AddDeviceModal = ({ open, onOpenChange, onAddDevice }: AddDeviceMod
                       >
                         <div className="flex items-center gap-3">
                           <div className="p-2 rounded-full bg-background border border-border">
-                            <Bluetooth size={18} className="text-primary" />
+                            <Wifi size={18} className="text-primary" />
                           </div>
                           <div>
                             <p className="font-medium text-sm">{device.name}</p>
@@ -212,7 +212,7 @@ export const AddDeviceModal = ({ open, onOpenChange, onAddDevice }: AddDeviceMod
                   <div className="text-sm text-muted-foreground space-y-1">
                     <p>1. Turn on your AVC Mask</p>
                     <p>2. Hold the power button for 3 seconds</p>
-                    <p>3. Wait for the blue LED to blink</p>
+                    <p>3. Wait for the WiFi LED to blink</p>
                   </div>
                 </div>
               </div>
@@ -222,8 +222,8 @@ export const AddDeviceModal = ({ open, onOpenChange, onAddDevice }: AddDeviceMod
                 size="lg"
                 onClick={startScan}
               >
-                <Bluetooth className="mr-2 h-4 w-4" />
-                Start Pairing
+                <Wifi className="mr-2 h-4 w-4" />
+                Start Connecting
               </Button>
             </div>
           )}

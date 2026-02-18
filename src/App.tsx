@@ -5,7 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
-import { BluetoothProvider } from "./context/BluetoothContext";
+import { WifiProvider } from "./context/WifiContext";
 
 const queryClient = new QueryClient();
 
@@ -14,7 +14,7 @@ const App = () => (
     <TooltipProvider>
       <Toaster />
       <Sonner />
-      <BluetoothProvider>
+      <WifiProvider>
         <BrowserRouter>
           <Routes>
             <Route path="/" element={<Index />} />
@@ -22,7 +22,7 @@ const App = () => (
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
-      </BluetoothProvider>
+      </WifiProvider>
     </TooltipProvider>
   </QueryClientProvider>
 );

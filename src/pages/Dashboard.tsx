@@ -19,7 +19,7 @@ import { DeviceConfiguration } from './DeviceConfiguration';
 import { ConnectHero } from '@/components/dashboard/ConnectHero';
 import { LiveMonitor } from '@/components/dashboard/LiveMonitor';
 import { HealthMonitor } from '@/components/dashboard/HealthMonitor';
-import { useBluetooth } from '@/context/BluetoothContext';
+import { useWifi } from '@/context/WifiContext';
 import { useToast } from '@/hooks/use-toast';
 import { Activity } from 'lucide-react';
 
@@ -56,7 +56,7 @@ export const Dashboard = ({ onLogout }: DashboardProps) => {
     setDetailModalOpen(true);
   };
 
-  const { isConnected, connectedDevice, disconnectDevice, connectToDevice: ctxConnect } = useBluetooth();
+  const { isConnected, connectedDevice, disconnectDevice, connectToDevice: ctxConnect } = useWifi();
 
   const handleDisconnect = (deviceId: string) => {
     disconnectDevice();
@@ -82,7 +82,7 @@ export const Dashboard = ({ onLogout }: DashboardProps) => {
     });
   };
 
-  const handleAddDevice = (newDevice: { name: string; category: DeviceCategory; macAddress: string }) => {
+  const handleAddDevice = (newDevice: { name: string; category: DeviceCategory; ipAddress: string }) => {
     const device: Device = {
       id: `dev-${Date.now()}`,
       name: newDevice.name,
@@ -94,7 +94,7 @@ export const Dashboard = ({ onLogout }: DashboardProps) => {
       lastConnected: new Date(),
       healthStatus: 'good',
       capabilities: ['Basic'],
-      macAddress: newDevice.macAddress,
+      ipAddress: newDevice.ipAddress,
     };
     setDevices([device, ...devices]);
     toast({

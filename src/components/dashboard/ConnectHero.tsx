@@ -1,5 +1,5 @@
 import { Button } from '@/components/ui/button';
-import { Bluetooth, Mic } from 'lucide-react';
+import { Wifi, Mic } from 'lucide-react';
 
 interface ConnectHeroProps {
     onConnect: () => void;
@@ -16,7 +16,7 @@ export const ConnectHero = ({ onConnect }: ConnectHeroProps) => {
 
                 {/* Decorative elements */}
                 <div className="absolute -top-3 -right-5 w-12 h-12 rounded-xl bg-secondary/80 backdrop-blur-md flex items-center justify-center border border-border/50 animate-float delay-100">
-                    <Bluetooth size={20} className="text-blue-400" />
+                    <Wifi size={20} className="text-cyan-400" />
                 </div>
             </div>
 
@@ -25,7 +25,7 @@ export const ConnectHero = ({ onConnect }: ConnectHeroProps) => {
                     <span className="gradient-text">Connect Your Voice</span>
                 </h1>
                 <p className="text-muted-foreground text-lg">
-                    Pair your Ayu Vani Chakra mask to start speaking naturally with AI-powered speech restoration.
+                    Connect your Ayu Vani Chakra mask via WiFi to start speaking naturally with AI-powered speech restoration.
                 </p>
             </div>
 
@@ -34,7 +34,7 @@ export const ConnectHero = ({ onConnect }: ConnectHeroProps) => {
                 className="h-14 px-8 text-lg rounded-full bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 shadow-lg hover:shadow-cyan-500/25 transition-all duration-300"
                 onClick={onConnect}
             >
-                <Bluetooth className="mr-2" />
+                <Wifi className="mr-2" />
                 Connect AVC Mask
             </Button>
         </div>

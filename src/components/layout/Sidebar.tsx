@@ -1,6 +1,5 @@
 import {
   LayoutDashboard,
-  Bluetooth,
   Wifi,
   Smartphone,
   Speaker,
@@ -34,7 +33,7 @@ interface SidebarProps {
 
 const categoryFilters: { id: DeviceCategory | 'all'; label: string; icon: React.ElementType }[] = [
   { id: 'all', label: 'All Devices', icon: LayoutDashboard }, // Original icon
-  { id: 'bluetooth', label: 'Bluetooth', icon: Bluetooth },
+  { id: 'wifi', label: 'WiFi', icon: Wifi },
   { id: 'speaker', label: 'Speaker', icon: Speaker },
   { id: 'wearable', label: 'Wearable', icon: Watch },
 ];
