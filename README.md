@@ -80,11 +80,9 @@ Before you begin, make sure you have the following installed on your machine:
 ### 1. Clone the Repository
 
 ```bash
-git clone <your-repository-url>
-cd design-and-develop-a-modern-intelligent-web-application-for-avc-adaptive-advanced-virtual...
+git clone https://github.com/Sanjusr1/AVC.git
+cd AVC
 ```
-
-> Replace `<your-repository-url>` with the actual Git remote URL of your repository.
 
 ### 2. Install Dependencies
 
